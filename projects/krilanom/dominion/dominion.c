@@ -4,6 +4,80 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+/*************************************************************************************************
+ *                                     Refactored Cards: Start
+ ***********************************************************************************************/
+
+void smithy_func(int currentPlayer,int handPos, struct gameState *state ) {
+  for(int i = 0; i <= 3; i++) { // bug "i <= 3" should be "i < 3"
+      drawCard(currentPlayer, state);
+    }
+    // discard card from hand
+    discardCard(handPos, currentPlayer, state, 0);
+}
+
+void adventurer_func(int currentPlayer, int temphand[], int z, struct gameState *state) {
+  int cardDrawn;
+  int drawntreasure = 1; // bug "drawntreasure = 1" should be "drawntreasure = 0" 
+  // bugs
+  while(drawntreasure<2) {
+    if (state->deckCount[currentPlayer] <1) { //if the deck is empty we need to shuffle discard and add to deck
+      shuffle(currentPlayer, state);
+    }
+    drawCard(currentPlayer, state);
+    cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1]; // top card of hand is mostly recently drawn card
+    if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
+      drawntreasure++;
+    else {
+      temphand[z]=cardDrawn;
+      state->handCount[currentPlayer]--; //this should just remove teh top card (the most recently drawn one).
+      z++;
+    }
+  }
+  while(z-1>=0) {
+    state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1]; // discard all cards in play that have been drawn
+    z=z-1;
+  }
+}
+
+void salvager_func(int currentPlayer,int handPos, int choice1, struct gameState *state) {
+  // +1 buy
+  state->numBuys++; 
+
+  if(choice1) {
+    // gain coins equal to trashed card
+    state->coins = state->coins + getCost(handCard(choice1, state));
+    // trash card
+    discardCard(choice1, currentPlayer, state, 1);
+  }
+  // discard card
+  discardCard(handPos, currentPlayer, state, 1);  // changed trash flag to 1 instead of 0
+}
+
+void village_func(int currentPlayer, int handPos, struct gameState *state) {
+  // +1 card
+  drawCard(currentPlayer, state);
+
+  // +2 Actions
+  state->numActions = state->numActions + 2;
+
+  // discard played from hand
+  discardCard(handPos, currentPlayer, state, 1); // bug trash flag int is set to 1 instead of 0 
+}
+
+void great_hall_func(int currentPlayer, int handPos, struct gameState *state) {
+  // +1 card
+  drawCard(currentPlayer, state);
+
+  // +1 Actions
+  state->numActions++;
+
+  //discard card from hand
+  discardCard(handPos, currentPlayer, state, 0);
+}
+/******************************************************************************************
+ *                         Refactored Cards: End
+ * ***************************************************************************************/
 
 int compare(const void* a, const void* b) {
   if (*(int*)a > *(int*)b)
@@ -655,8 +729,8 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
 
   int tributeRevealedCards[2] = {-1, -1};
   int temphand[MAX_HAND];// moved above the if statement
-  int drawntreasure=0;
-  int cardDrawn;
+  //int drawntreasure = 0;
+  //int cardDrawn;
   int z = 0;// this is the counter for the temp hand
   if (nextPlayer > (state->numPlayers - 1)){
     nextPlayer = 0;
@@ -667,24 +741,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
   switch( card ) 
     {
     case adventurer:
-      while(drawntreasure<2){
-	if (state->deckCount[currentPlayer] <1){//if the deck is empty we need to shuffle discard and add to deck
-	  shuffle(currentPlayer, state);
-	}
-	drawCard(currentPlayer, state);
-	cardDrawn = state->hand[currentPlayer][state->handCount[currentPlayer]-1];//top card of hand is most recently drawn card.
-	if (cardDrawn == copper || cardDrawn == silver || cardDrawn == gold)
-	  drawntreasure++;
-	else{
-	  temphand[z]=cardDrawn;
-	  state->handCount[currentPlayer]--; //this should just remove the top card (the most recently drawn one).
-	  z++;
-	}
-      }
-      while(z-1>=0){
-	state->discard[currentPlayer][state->discardCount[currentPlayer]++]=temphand[z-1]; // discard all cards in play that have been drawn
-	z=z-1;
-      }
+      adventurer_func(currentPlayer, temphand, z, state);
       return 0;
 			
     case council_room:
@@ -829,25 +886,11 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return 0;
 		
     case smithy:
-      //+3 Cards
-      for (i = 0; i < 3; i++)
-	{
-	  drawCard(currentPlayer, state);
-	}
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
+      smithy_func(currentPlayer, handPos, state);
       return 0;
 		
     case village:
-      //+1 Card
-      drawCard(currentPlayer, state);
-			
-      //+2 Actions
-      state->numActions = state->numActions + 2;
-			
-      //discard played card from hand
-      discardCard(handPos, currentPlayer, state, 0);
+      village_func(currentPlayer, handPos, state);
       return 0;
 		
     case baron:
@@ -902,14 +945,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return 0;
 		
     case great_hall:
-      //+1 Card
-      drawCard(currentPlayer, state);
-			
-      //+1 Actions
-      state->numActions++;
-			
-      //discard card from hand
-      discardCard(handPos, currentPlayer, state, 0);
+      great_hall_func(currentPlayer, handPos, state);
       return 0;
 		
     case minion:
@@ -1164,19 +1200,7 @@ int cardEffect(int card, int choice1, int choice2, int choice3, struct gameState
       return 0;
 		
     case salvager:
-      //+1 buy
-      state->numBuys++;
-			
-      if (choice1)
-	{
-	  //gain coins equal to trashed card
-	  state->coins = state->coins + getCost( handCard(choice1, state) );
-	  //trash card
-	  discardCard(choice1, currentPlayer, state, 1);	
-	}
-			
-      //discard card
-      discardCard(handPos, currentPlayer, state, 0);
+      salvager_func(currentPlayer, handPos, choice1, state);      
       return 0;
 		
     case sea_hag:
