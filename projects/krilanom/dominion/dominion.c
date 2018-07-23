@@ -9,7 +9,8 @@
  ***********************************************************************************************/
 
 void smithy_func(int currentPlayer,int handPos, struct gameState *state ) {
-  for(int i = 0; i <= 3; i++) { // bug "i <= 3" should be "i < 3"
+  
+  for(int i = 0; i < 3; i++) { 
       drawCard(currentPlayer, state);
     }
     // discard card from hand
