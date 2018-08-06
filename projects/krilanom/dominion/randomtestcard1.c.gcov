@@ -1,0 +1,170 @@
+        -:    0:Source:randomtestcard1.c
+        -:    0:Graph:randomtestcard1.gcno
+        -:    0:Data:randomtestcard1.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    0:Source is newer than graph
+        -:    1:#include <stdlib.h>
+        -:    2:#include <stdio.h>
+        -:    3:#include <math.h>
+        -:    4:#include <time.h>
+        -:    5:#include <string.h>
+        -:    6:#include "dominion_helpers.h"
+        -:    7:#include "rngs.h"
+        -:    8:#include "random_test_helpers.h"
+        -:    9:
+        -:   10:/*
+        -:   11:* Random Test Suite: Smithy Card
+        -:   12:* Card Detail:
+        -:   13:*	- Use smithy card
+        -:   14:*	- Add three cards from current players deck to their hand
+        -:   15:*   - No changes to state of other player(s)
+        -:   16:*	- No changes in number of cards in supply piles
+        -:   17:* Test Conditions: 
+        -:   18:*	- Create a gameState struct with random values called pre
+        -:   19:*   - Call cardEffect with a copy of pre called post
+        -:   20:*   - Compare the structs and report differences
+        -:   21:* Tests:
+        -:   22:*   - Current player deck has 3 less cards
+        -:   23:*   - Current player hand has 2 more cards
+        -:   24:*   - Current player played 1 card
+        -:   25:*   - Opponent's deck unchanged
+        -:   26:*/
+        -:   27:
+        -:   28:
+        -:   29:
+        -:   30:// Function Prototype
+        -:   31:void testCardSmithy(struct gameState *pre, struct results *r);
+        -:   32:
+function main called 1 returned 100% blocks executed 96%
+        1:   33:int main() {
+        1:   34:	srand(time(NULL));
+call    0 returned 100%
+call    1 returned 100%
+        1:   35:	printf("Test Suite: Smithy Card - running %d random tests\n", NUMTESTS);
+call    0 returned 100%
+        1:   36:	printf("Testing Initiating.\n");
+call    0 returned 100%
+        1:   37:	struct results r = { 0 };
+        -:   38:	int i;
+      101:   39:	for (i = 0; i < NUMTESTS; i++) {
+branch  0 taken 99%
+branch  1 taken 1% (fallthrough)
+        -:   40:		struct gameState state;
+      100:   41:		printf("before gameState\n");
+call    0 returned 100%
+      100:   42:		randomGameState(&state);
+call    0 returned 100%
+      100:   43:		printf("after gameState\n"); 
+call    0 returned 100%
+      100:   44:		testCardSmithy(&state, &r);
+call    0 returned 100%
+      100:   45:		printf("after testcardsmithy\n");
+call    0 returned 100%
+        -:   46:	}
+        1:   47:	printf("Testing Completed.\n\n");
+call    0 returned 100%
+        -:   48:
+        1:   49:	if (r.result1 + r.result2 + r.result3 + r.result4 + r.result5 > 0) {
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+        1:   50:		printf("\nTest Suite FAILED (at least one test failed\n");
+call    0 returned 100%
+        -:   51:	}
+        -:   52:	else {
+    #####:   53:		printf("\nTest Suite PASSED\n");
+call    0 never executed
+        -:   54:	}
+        -:   55:
+        1:   56:	printf("\n---------- Results: Error Rates ----------\n");
+call    0 returned 100%
+        1:   57:	printf("Player played card count: %.2f%%\n", r.result1 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        1:   58:	printf("Player hand count: %.2f%%\n", r.result2 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        1:   59:	printf("Deck count: %.2f%%\n", r.result3 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        1:   60:	printf("opponent card counts: %.2f%%\n", r.result4 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        -:   61:	
+        1:   62:	return 0;
+        -:   63:}
+        -:   64:
+        -:   65:/*
+        -:   66:* Function: testCardSmithy
+        -:   67:* pass in a pointer to a gameState struct with random values and a pointer to
+        -:   68:* an results struct
+        -:   69:*/
+function testCardSmithy called 100 returned 100% blocks executed 96%
+      100:   70:void testCardSmithy(struct gameState *pre, struct results *r) {
+        -:   71:	// cardEffect variables
+        -:   72:	int handPos;						// range 0 - state->handCount[playerNumber]
+        -:   73:	int choice1, choice2, choice3;		// range 0 - 26 (CARD values)
+        -:   74:	int bonus;							// 0 - MAX_DECK
+        -:   75:
+        -:   76:	// test variables
+      100:   77:	int playerNumber = pre->whoseTurn;
+        -:   78:	struct gameState post;
+        -:   79:	int i;
+        -:   80:
+      100:   81:	handPos = randomNum(0, pre->handCount[playerNumber]);
+call    0 returned 100%
+      100:   82:	pre->hand[playerNumber][handPos] = smithy;
+        -:   83:
+      100:   84:	memcpy(&post, pre, sizeof(struct gameState));
+        -:   85:
+      100:   86:	bonus = randomNum(0, MAX_DECK);
+call    0 returned 100%
+      100:   87:	choice1 = randomNum(0, 26);
+call    0 returned 100%
+      100:   88:	choice2 = randomNum(0, 26);
+call    0 returned 100%
+      100:   89:	choice3 = randomNum(0, 26);
+call    0 returned 100%
+      100:   90:	printf("before cardeffect\n");
+call    0 returned 100%
+        -:   91:	// Call cardEffect w/ post gameState
+      100:   92:	cardEffect(smithy, choice1, choice2, choice3, &post, handPos, &bonus);
+call    0 returned 100%
+        -:   93:
+        -:   94:	// Compare pre to post gameState, increment results struct
+        -:   95:	// Post played hand expected to be 1 more than pre
+      100:   96:	if (pre->playedCardCount + 1 != post.playedCardCount)
+branch  0 taken 0% (fallthrough)
+branch  1 taken 100%
+    #####:   97:		r->result1++;
+        -:   98:
+        -:   99:	// HandCount expected to have only 2 more cards
+      100:  100:	if (pre->handCount[playerNumber] + 2 != post.handCount[playerNumber])
+branch  0 taken 1% (fallthrough)
+branch  1 taken 99%
+        1:  101:		r->result2++;
+        -:  102:
+        -:  103:	// Post deck expected to be 3 less than pre
+      100:  104:	if (pre->deckCount[playerNumber] - 3 != post.deckCount[playerNumber])
+branch  0 taken 1% (fallthrough)
+branch  1 taken 99%
+        1:  105:		r->result3++;
+      100:  106:	printf("before last for loop\n");
+call    0 returned 100%
+        -:  107:	// Opponent cards counts unchanged
+      402:  108:	for (i = 0; i < pre->numPlayers; i++) {
+branch  0 taken 75%
+branch  1 taken 25% (fallthrough)
+      302:  109:		if (i == playerNumber)
+branch  0 taken 24% (fallthrough)
+branch  1 taken 76%
+       71:  110:			continue;
+        -:  111:		else {
+      231:  112:			if (pre->deckCount[i] != post.deckCount[i] || pre->handCount[i] != post.handCount[i] || pre->discardCount[i] != post.discardCount[i]) {
+branch  0 taken 99% (fallthrough)
+branch  1 taken 1%
+branch  2 taken 97% (fallthrough)
+branch  3 taken 3%
+branch  4 taken 1% (fallthrough)
+branch  5 taken 99%
+       11:  113:				r->result4++;
+        -:  114:			}
+        -:  115:		}
+        -:  116:	}
+      100:  117:}

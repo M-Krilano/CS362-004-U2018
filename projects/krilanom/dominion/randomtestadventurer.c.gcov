@@ -1,0 +1,204 @@
+        -:    0:Source:randomtestadventurer.c
+        -:    0:Graph:randomtestadventurer.gcno
+        -:    0:Data:randomtestadventurer.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    0:Source is newer than graph
+        -:    1:#include <stdlib.h>
+        -:    2:#include <stdio.h>
+        -:    3:#include <math.h>
+        -:    4:#include <time.h>
+        -:    5:#include <string.h>
+        -:    6:#include "dominion_helpers.h"
+        -:    7:#include "rngs.h"
+        -:    8:#include "random_test_helpers.h"
+        -:    9:
+        -:   10:/*
+        -:   11:* Random Test Suite: Adventurer Card
+        -:   12:* Card Detail:
+        -:   13:*	- Use adventure card
+        -:   14:*	- Go through deck, one card at a time (revealing them) until you find two 
+        -:   15:*	  treasure cards
+        -:   16:*	- Once you find two treasure cards, add those two treasure cards to hand
+        -:   17:*	- Discard the revealed/non-treasure cards into discard pile
+        -:   18:* Test Conditions: 
+        -:   19:*	- Create a gameState struct with random values called pre
+        -:   20:*   - Call cardEffect with a copy of pre called post
+        -:   21:*   - Compare the structs and report differences
+        -:   22:* Tests:
+        -:   23:*   - Current player's deck has x fewer cards - no visibility into this metric
+        -:   24:*   - Current player's hand has 2 more treasure cards
+        -:   25:*   - Current player's hand has 1 more card
+        -:   26:*   - Played card has 1 more card
+        -:   27:*   - Current player's deck + discard has 2 fewer cards
+        -:   28:*   - Opponent's card counts unchanged
+        -:   29:*/
+        -:   30:
+        -:   31:// Function Prototype
+        -:   32:void testCardAdventurer(struct gameState *pre, struct results *r);
+        -:   33:
+function main called 1 returned 100% blocks executed 95%
+        1:   34:int main() {
+        1:   35:	srand(time(NULL));
+call    0 returned 100%
+call    1 returned 100%
+        -:   36:
+        1:   37:	printf("Test Suite: Adventurer Card - running %d random tests\n", NUMTESTS);
+call    0 returned 100%
+        1:   38:	printf("Testing Initiating.\n");
+call    0 returned 100%
+        1:   39:	struct results r = { 0 };
+        -:   40:	int i;
+      101:   41:	for (i = 0; i < NUMTESTS; i++) {
+branch  0 taken 99%
+branch  1 taken 1% (fallthrough)
+        -:   42:		struct gameState state;
+      100:   43:		randomGameState(&state);
+call    0 returned 100%
+      100:   44:		testCardAdventurer(&state, &r);
+call    0 returned 100%
+        -:   45:	}
+        1:   46:	printf("Testing Completed.\n\n");
+call    0 returned 100%
+        -:   47:
+        1:   48:	if (r.result1 + r.result2 + r.result3 + r.result4 + r.result5 > 0) {
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+        1:   49:		printf("\nTest Suite FAILED (at least one test failed\n");
+call    0 returned 100%
+        -:   50:	}
+        -:   51:	else {
+    #####:   52:		printf("\nTest Suite PASSED\n");
+call    0 never executed
+        -:   53:	}
+        1:   54:	printf("\n---------- Results: Error Rates ----------\n");
+call    0 returned 100%
+        1:   55:	printf("Treasure card counts: %.2f%%\n", r.result1 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        1:   56:	printf("Player hand count: %.2f%%\n", r.result2 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        1:   57:	printf("Total discards+deck count: %.2f%%\n", r.result3 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        1:   58:	printf("Opponent card counts: %.2f%%\n", r.result4 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        1:   59:	printf("Played card counts: %.2f%%\n", r.result5 * 1.0 / NUMTESTS * 100);
+call    0 returned 100%
+        1:   60:	return 0;
+        -:   61:}
+        -:   62:
+        -:   63:/*
+        -:   64:* Function: testCardAdeventurer 
+        -:   65:*	- Pass in pointer to gameState struct w/ random values and a pointer to
+        -:   66:*	  results struct
+        -:   67:*/
+function testCardAdventurer called 100 returned 100% blocks executed 100%
+      100:   68:void testCardAdventurer(struct gameState *pre, struct results *r) {
+        -:   69:	// cardEffect variables
+        -:   70:	int handPos;					// range 0 - state->handCount[playerNumber]
+        -:   71:	int choice1, choice2, choice3;  // range 0 - 26 (CARD values)
+        -:   72:	int bonus;						// 0 - MAX_DECK
+        -:   73:
+        -:   74:	// test variables
+      100:   75:	int playerNumber = pre->whoseTurn;
+        -:   76:	struct gameState post;
+        -:   77:	int i;
+      100:   78:	int pre_t = 0;					// number of treasure cards in hand (pre gameState)
+      100:   79:	int post_t = 0;					// number of treasure cards in hand (post gameState)
+        -:   80:
+      100:   81:	handPos = randomNum(0, pre->handCount[playerNumber]);
+call    0 returned 100%
+      100:   82:	pre->hand[playerNumber][handPos] = adventurer;
+        -:   83:
+      100:   84:	memcpy(&post, pre, sizeof(struct gameState));
+        -:   85:
+      100:   86:	bonus = randomNum(0, MAX_DECK);
+call    0 returned 100%
+      100:   87:	choice1 = randomNum(0, 26);
+call    0 returned 100%
+      100:   88:	choice2 = randomNum(0, 26);
+call    0 returned 100%
+      100:   89:	choice3 = randomNum(0, 26);
+call    0 returned 100%
+        -:   90:
+        -:   91:	// Call cardEffect w/ post gameState
+      100:   92:	cardEffect(adventurer, choice1, choice2, choice3, &post, handPos, &bonus);
+call    0 returned 100%
+        -:   93:
+        -:   94:	// Compare pre to post gameState, increment results struct
+        -:   95:	// Post Hand expected to contain 2 more treasure cards
+     6461:   96:	for (i = 0; i < pre->handCount[playerNumber]; i++) {
+branch  0 taken 98%
+branch  1 taken 2% (fallthrough)
+     6361:   97:		int cardPre = pre->hand[playerNumber][i];
+     6361:   98:		if (cardPre == copper || cardPre == gold || cardPre == silver) {
+branch  0 taken 96% (fallthrough)
+branch  1 taken 4%
+branch  2 taken 96% (fallthrough)
+branch  3 taken 4%
+branch  4 taken 4% (fallthrough)
+branch  5 taken 96%
+      742:   99:			pre_t++;
+        -:  100:		}
+        -:  101:	}
+     6557:  102:	for (i = 0; i < post.handCount[playerNumber]; i++) {
+branch  0 taken 98%
+branch  1 taken 2% (fallthrough)
+     6457:  103:		int cardPost = post.hand[playerNumber][i];
+     6457:  104:		if (cardPost == copper || cardPost == gold || cardPost == silver) {
+branch  0 taken 95% (fallthrough)
+branch  1 taken 5%
+branch  2 taken 95% (fallthrough)
+branch  3 taken 5%
+branch  4 taken 4% (fallthrough)
+branch  5 taken 96%
+      841:  105:			post_t++;
+        -:  106:		}
+        -:  107:	}
+      100:  108:	if (pre_t + 2 != post_t) {
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+        -:  109:		r->result1++;
+        -:  110:	}
+      100:  111:
+branch  0 taken 2% (fallthrough)
+branch  1 taken 98%
+        2:  112:	// Hand count expected to have 1 more card
+        -:  113:	if (pre->handCount[playerNumber] + 1 != post.handCount[playerNumber])
+        -:  114:		r->result2++;
+      100:  115:
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+      100:  116:	// Post deck + discard pile expected to be 2 less than pre
+        -:  117:	if (pre->deckCount[playerNumber] + pre->discardCount[playerNumber] != post.deckCount[playerNumber] + post.discardCount[playerNumber] + 2) {
+        -:  118:		r->result3++;
+        -:  119:	}
+      406:  120:
+branch  0 taken 75%
+branch  1 taken 25% (fallthrough)
+      306:  121:	// Opponent-card's counts unchanged
+branch  0 taken 26% (fallthrough)
+branch  1 taken 74%
+       79:  122:	for (i = 0; i < pre->numPlayers; i++) {
+        -:  123:		if (i == playerNumber) {
+      227:  124:			continue;
+branch  0 taken 97% (fallthrough)
+branch  1 taken 3%
+branch  2 taken 99% (fallthrough)
+branch  3 taken 1%
+branch  4 taken 6% (fallthrough)
+branch  5 taken 94%
+       22:  125:		}
+        -:  126:		else {
+        -:  127:			if (pre->deckCount[i] != post.deckCount[i] || pre->handCount[i] != post.handCount[i] || pre->discardCount[i] != post.discardCount[i]) {
+        -:  128:				r->result4++;
+        -:  129:			}
+        -:  130:		}
+      100:  131:	}
+branch  0 taken 100% (fallthrough)
+branch  1 taken 0%
+      100:  132:
+      100:  133:	// Post playedCardCount expected to be 1 more than pre
+        -:  134:	if (pre->playedCardCount + 1 != post.playedCardCount) {
+        -:  135:		r->result5++;
+        -:  136:	}
+        -:  137:}
