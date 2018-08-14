@@ -1,14 +1,8 @@
 import junit.framework.TestCase;
 import java.util.Random;
-//You can use this as a skeleton for your 3 different test approach
-//It is an optional to use this file, you can generate your own test file(s) to test the target function!
-// Again, it is up to you to use this file or not!
-
-
-
-
 
 public class UrlValidatorTest extends TestCase {
+	
 	// 4 true test scheme cases
 	String[] trueUrlScheme = {
 			"http://",
@@ -16,6 +10,7 @@ public class UrlValidatorTest extends TestCase {
             "h3t://",
             ""
             };
+	
 	// 5 false test scheme cases
 	String[] falseUrlScheme = {
             "3ht://",
@@ -24,6 +19,7 @@ public class UrlValidatorTest extends TestCase {
             "http/",
             "://"
             };
+	
 	// 6 true test authority cases
 	String[] trueUrlAuthority = {
 			"www.google.com",
@@ -33,6 +29,7 @@ public class UrlValidatorTest extends TestCase {
             "255.255.255.255",
             "255.com"
             };
+	
 	// 12 false test authority cases
 	String[] falseUrlAuthority = {
             "256.256.256.256",
@@ -48,6 +45,7 @@ public class UrlValidatorTest extends TestCase {
             "aaa",
             ""
             };
+	
 	// 4 true port cases
 	String[] trueUrlPort = {
 		":80",
@@ -55,12 +53,14 @@ public class UrlValidatorTest extends TestCase {
         ":0",
         ""
         };
+	
 	// 3 false port cases
 	String[] falseUrlPort = {
 		":-1",
         ":65636",
         ":65a"
         };
+	
 	// 8 true path cases
 	String[] truePath = {
 		"/test1",
@@ -72,6 +72,7 @@ public class UrlValidatorTest extends TestCase {
         "/t123/file",
         "/$23/file"
         };
+	
 	// 6 false path cases
 	String[] falsePath = {
       "/..",
@@ -81,6 +82,7 @@ public class UrlValidatorTest extends TestCase {
       "/../file",
       "/#/file"
       };
+	
 	// 3 true query cases
 	String[] trueUrlQuery = {
 		"?action=view",
@@ -92,20 +94,9 @@ public class UrlValidatorTest extends TestCase {
    public UrlValidatorTest(String testName) {
       super(testName);
    }
-
-   public static void main(String[] argv) {
-	   UrlValidatorTest urlTest = new UrlValidatorTest("Url Validator Test");
-	   
-	   urlTest.testManualTest();	   
-//	   urlTest.testYourFirstPartition();
-//	   urlTest.testYourSecondPartition();
-//	   urlTest.testIsValid();
-   }
    
    public void testManualTest()
    {
-	   //You can use this function to implement your manual testing
-	   //You can use this function to implement your manual testing
 	   int size = 5;
 	   boolean result = true;
 	   String errorType, errorMsg = "";
@@ -152,22 +143,73 @@ public class UrlValidatorTest extends TestCase {
 	   else
 		   System.out.println("\n\tNo bugs found.");
 	   
-	   // assertTrue(errorMsg, result);    <<-- Uncomment if run unit tests in Eclipse IDE
+	   // assertTrue(errorMsg, result);    <<-- Uncomment if run unit tests in Eclipse IDE	   
+   }
+   
+   /*
+    * For the following input partitioning tests, the URL is broken into
+    * four parts: Scheme, Authority, Path, Query.
+    */
+   
+   public void testSchemePartition() {
+	   UrlValidator u = new UrlValidator(null, null, 0);
 	   
-   }
-   
-   
-   public void testYourFirstPartition()
-   {
-	 //You can use this function to implement your First Partition testing	   
+	   assertTrue(u.isValid("http://www.google.com/gmail"));
+	   assertTrue(u.isValid("https://www.google.com/gmail"));
+	   assertTrue(u.isValid("ftp://www.google.com/gmail"));
+       assertFalse(u.isValid("http:/www.google.com/gmail"));
+	   assertFalse(u.isValid("f1p://www.google.com/gmail"));
+       assertFalse(u.isValid("www.google.com/gmail"));
+	   
+	   u = new UrlValidator(new String [] { "http" }, null, 0);
+	   
+	   assertTrue(u.isValid("http://www.google.com/gmail"));
+	   assertFalse(u.isValid("https://www.google.com/gmail"));
+	   assertFalse(u.isValid("ftp://www.google.com/gmail"));
+	   assertFalse(u.isValid("http:/www.google.com/gmail"));
+	   assertFalse(u.isValid("f1p://www.google.com/gmail"));
+	   assertFalse(u.isValid("www.google.com/gmail"));
+	   
+	   u = new UrlValidator(new String [] { "http" }, null, UrlValidator.ALLOW_ALL_SCHEMES);
 
+	   assertTrue(u.isValid("http://www.google.com/gmail"));
+	   assertTrue(u.isValid("https://www.google.com/gmail"));
+	   assertTrue(u.isValid("ftp://www.google.com/gmail"));
+	   assertFalse(u.isValid("http:/www.google.com/gmail"));
+	   assertTrue(u.isValid("f1p://www.google.com/gmail"));
+	   assertFalse(u.isValid("www.google.com/gmail"));
    }
    
-   public void testYourSecondPartition(){
-	   //You can use this function to implement your Second Partition testing	   
-
+   public void testAuthorityPartition() {
+	   UrlValidator u = new UrlValidator(null, null, 0);
+	   
+	   assertTrue(u.isValid("http://www.google.com/gmail"));
+	   assertTrue(u.isValid("http://WWW.GOOGLE.COM/gmail"));
+	   assertTrue(u.isValid("http://www.g00gl3.com/gmail"));
+	   assertFalse(u.isValid("http://www.goog%e.com/gmail"));
+	   assertTrue(u.isValid("http://255.255.255.255/gmail"));
+	   assertFalse(u.isValid("http://255.255.255.-1/gmail"));
+	   assertFalse(u.isValid("http://255.255.255.256/gmail"));
+	   assertFalse(u.isValid("http://255.255.255/gmail"));
    }
-   //You need to create more test cases for your Partitions if you need to 
+   
+   public void testPathPartition() {   
+	   UrlValidator u = new UrlValidator(null, null, 0);
+	   
+	   assertTrue(u.isValid("http://www.google.com/gmail"));
+	   assertTrue(u.isValid("http://www.google.com/gmai1"));
+	   assertFalse(u.isValid("http://www.google.com/.."));
+	   assertFalse(u.isValid("http://www.google.com//gmail"));
+   }
+   
+   public void testQueryPartition() {
+	   
+	   UrlValidator u = new UrlValidator(null, null, 0);
+	   
+	   assertTrue(u.isValid("http://www.google.com/gmail"));
+	   assertTrue(u.isValid("http://www.google.com/gmail?i=1"));
+	   assertTrue(u.isValid("http://www.google.com/gmail?this=start"));   
+   }
    
    public void testIsValid()
    {
@@ -191,7 +233,7 @@ public class UrlValidatorTest extends TestCase {
 	   int actualTrueCount = 0;
 	   int actualFalseCount = 0;
 	
-	   //Loop 1000 times
+	   // Loop 1000 times
 	   for (int i = 0; i < 1000; i++)
 	   {		   
 		   // random true URL
@@ -201,12 +243,12 @@ public class UrlValidatorTest extends TestCase {
 		   FALSE_TEST_URL = falseUrlScheme[randomnum.nextInt(5)] + falseUrlAuthority[randomnum.nextInt(12)] +
 				   falseUrlPort[randomnum.nextInt(3)] + falsePath[randomnum.nextInt(6)];
 
-		   //verify the true URLs
+		   // verify the true URLs
 		   TRUE_URL_VALIDATOR = new UrlValidator(null, null, UrlValidator.ALLOW_LOCAL_URLS);
 		   if( TRUE_URL_VALIDATOR.isValid(TRUE_TEST_URL) ) {
 			   ++actualTrueCount;
 		   };
-		   //verify the false URLs
+		   // verify the false URLs
 		   FALSE_URL_VALIDATOR = new UrlValidator(null, null, UrlValidator.ALLOW_LOCAL_URLS);
 		   if( FALSE_URL_VALIDATOR.isValid(FALSE_TEST_URL) ) {
 			   ++actualFalseCount;
